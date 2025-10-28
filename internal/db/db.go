@@ -1,24 +1,29 @@
 package db
 
 import (
-	"fmt"
 	"log"
+	"os"
+
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
+
 	"github.com/Lintung0/Smoothies-Golang/internal/models"
-	"github.com/Lintung0/Smoothies-Golang/internal/configs"
 )
 
 var DB *gorm.DB
 
-func connect() {
-	dsn := configs.GetDBSn
-	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
+func Connect() {
+	dsn := os.Getenv("DB_DSN")
+	var err error
+	DB, err = gorm.Open(mysql.Open(dsn), &gorm.Config{})
 	if err != nil {
-	  log.Fatal("Failed to connect to database:", err)
+		log.Fatal("❌ gagal konek database:", err)
 	}
-	DB=db
 
-	DB.AutoMigrate(&models.User{}, &models.Product{}, &models.Order{}, &models.OrderItem{}, &models.Payment{})
-	fmt.Println("DB connected and migrated")
+	err = DB.AutoMigrate(&models.User{}, &models.Products{}, &models.Order{}, &models.OrderItem{}, &models.Payment{})
+	if err != nil {
+		log.Fatal("❌ gagal migrasi tabel:", err)
+	}
+
+	log.Println("✅ Database terkoneksi & migrasi berhasil")
 }
