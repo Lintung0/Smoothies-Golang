@@ -37,7 +37,7 @@ func (h *UserHandler) CreateOrder(c *fiber.Ctx) error {
 	// We create the order shell first, without items, to get an ID.
 	// The total will be updated later.
 	order := models.Order{
-		UserID:           input.UserID,
+		UserID:           userID, // Gunakan userID dari token, bukan dari input
 		Status:           input.Status,
 		NamaPenerima:     input.NamaPenerima,
 		KelasAlamat:      input.KelasAlamat,

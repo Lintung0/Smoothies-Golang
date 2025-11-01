@@ -77,7 +77,7 @@ func (h *AdminHandler) GetWeeklySales(c *fiber.Ctx) error {
 
 	query := `
 		SELECT DATE(created_at) as date, SUM(total_price) as total
-		FROM orders
+		FROM orders 
 		WHERE created_at BETWEEN ? AND ?
 		GROUP BY DATE(created_at)
 		ORDER BY DATE(created_at)
