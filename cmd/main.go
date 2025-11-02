@@ -34,6 +34,7 @@ func main() {
 	userHandler := handlers.NewUserHandler(db)
 	adminHandler := handlers.NewAdminHandler(db)
 	productHandler := handlers.NewProductHandler(db)
+	orderHandler := handlers.NewOrderHandler(db)
 
 	// 🌐 Base group
 	api := app.Group("/api")
@@ -54,8 +55,9 @@ func main() {
 	userRoutes := api.Group("/user", middleware.AuthRequired("user"))
 	userRoutes.Get("/profile", userHandler.GetProfile)
 	userRoutes.Put("/profile", userHandler.UpdateProfile)
-	userRoutes.Post("/orders", userHandler.CreateOrder)  // bisa dengan upload bukti QRIS (multipart)
-	userRoutes.Get("/orders", userHandler.GetUserOrders) // lihat riwayat pesanan
+	userRoutes.Post("/orders", orderHandler.Create)                         // Buat order dengan raw JSON
+	userRoutes.Post("/orders/:id/payment", orderHandler.UploadPaymentProof) // Upload bukti bayar (multipart)
+	userRoutes.Get("/orders", userHandler.GetUserOrders)                    // lihat riwayat pesanan
 
 	// ================================
 	// 🛒 Admin Routes (require admin role)
@@ -70,6 +72,12 @@ func main() {
 	// Order management
 	adminRoutes.Get("/orders", adminHandler.GetOrders)                    // semua pesanan (pagination)
 	adminRoutes.Put("/orders/:id/status", adminHandler.UpdateOrderStatus) // ubah status pesanan
+
+	// User management
+	adminRoutes.Get("/users", adminHandler.GetAllUsers) // lihat semua users
+
+	// Payment verification
+	adminRoutes.Put("/payments/:id/verify", adminHandler.VerifyPayment) // verify payment
 
 	// Statistik penjualan mingguan
 	adminRoutes.Get("/sales/weekly", adminHandler.GetWeeklySales)

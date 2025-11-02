@@ -4,11 +4,11 @@ import (
 	"os"
 	"time"
 
+	"github.com/Lintung0/Smoothies-Golang/internal/models"
 	"github.com/gofiber/fiber/v2"
 	"github.com/golang-jwt/jwt/v5"
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
-	"github.com/Lintung0/Smoothies-Golang/internal/models"
 )
 
 type AuthHandler struct {
@@ -79,11 +79,11 @@ func (h *AuthHandler) Login(c *fiber.Ctx) error {
 		return c.Status(401).JSON(fiber.Map{"error": "invalid password"})
 	}
 
-	// generate JWT
+	// generate JWT with 72 hours expiration
 	claims := jwt.MapClaims{
-		"user_id": user.ID,
-		"role":    user.Role,
-		"exp":     time.Now().Add(time.Hour * 72).Unix(),
+		"id":   user.ID, // Diubah dari "user_id" menjadi "id" agar cocok dengan struct Claims di jwt_utils.go
+		"role": user.Role,
+		"exp":  time.Now().Add(time.Hour * 72).Unix(),
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)

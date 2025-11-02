@@ -76,7 +76,7 @@ func (h *AdminHandler) GetWeeklySales(c *fiber.Ctx) error {
 	}
 
 	query := `
-		SELECT DATE(created_at) as date, SUM(total_price) as total
+		SELECT DATE(created_at) as date, SUM(total) as total
 		FROM orders 
 		WHERE created_at BETWEEN ? AND ?
 		GROUP BY DATE(created_at)
@@ -88,71 +88,6 @@ func (h *AdminHandler) GetWeeklySales(c *fiber.Ctx) error {
 	}
 
 	return c.JSON(fiber.Map{"sales": sales})
-}
-
-// CreateProduct handles the creation of a new product.
-func (h *AdminHandler) CreateProduct(c *fiber.Ctx) error {
-	var product models.Products
-
-	// Parse the product details from the request body
-	if err := c.BodyParser(&product); err != nil {
-		return c.Status(400).JSON(fiber.Map{"error": "invalid request body"})
-	}
-
-	// Save the product to the database
-	if err := h.DB.Create(&product).Error; err != nil {
-		return c.Status(500).JSON(fiber.Map{"error": err.Error()})
-	}
-
-	return c.JSON(fiber.Map{"message": "product created", "product": product})
-}
-
-// UpdateProduct handles updating an existing product by ID.
-func (h *AdminHandler) UpdateProduct(c *fiber.Ctx) error {
-	id := c.Params("id")
-	var product models.Products
-
-	// Find the product by ID
-	if err := h.DB.First(&product, id).Error; err != nil {
-		return c.Status(404).JSON(fiber.Map{"error": "product not found"})
-	}
-
-	// Parse the updated product details from the request body
-	var body models.Products
-	if err := c.BodyParser(&body); err != nil {
-		return c.Status(400).JSON(fiber.Map{"error": "invalid request body"})
-	}
-
-	// Update the product fields
-	product.Name = body.Name
-	product.Description = body.Description
-	product.Price = body.Price
-	product.Stock = body.Stock
-
-	// Save the updated product to the database
-	if err := h.DB.Save(&product).Error; err != nil {
-		return c.Status(500).JSON(fiber.Map{"error": err.Error()})
-	}
-
-	return c.JSON(fiber.Map{"message": "product updated", "product": product})
-}
-
-// DeleteProduct handles deleting a product by ID.
-func (h *AdminHandler) DeleteProduct(c *fiber.Ctx) error {
-	id := c.Params("id")
-	var product models.Products
-
-	// Find the product by ID
-	if err := h.DB.First(&product, id).Error; err != nil {
-		return c.Status(404).JSON(fiber.Map{"error": "product not found"})
-	}
-
-	// Delete the product from the database
-	if err := h.DB.Delete(&product).Error; err != nil {
-		return c.Status(500).JSON(fiber.Map{"error": err.Error()})
-	}
-
-	return c.JSON(fiber.Map{"message": "product deleted", "product": product})
 }
 
 // Get all users
